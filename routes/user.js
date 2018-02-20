@@ -13,13 +13,24 @@ var User = require('../models/user');
 //==================================
 app.get('/', (req, res) => {
 
+    var desde = req.query.desde;
+    desde = isNaN(desde) ? 0 : Number(desde);
+
+    var limit = req.query.limit;
+    limit = isNaN(limit) ? 10 : Number(limit);
+
     User.find({}, 'name email img role')
+        .skip(desde)
+        .limit(limit)
         .exec((err, users) => {
 
-            if (err)
+            if (err) {
                 response.error500(res, 'Error al intentar obtener los usuarios', err);
+            }
 
-            response.ok(res, 'users', users);
+            User.count({}, (err, total) => {
+                response.ok(res, ['users', 'total'], [users, total]);
+            });
         });
 });
 
@@ -40,8 +51,9 @@ app.post('/', jwtVerify, (req, res) => {
     });
 
     user.save((err, savedUser) => {
-        if (err)
+        if (err) {
             return response.error400(res, 'Error creando usuario', err);
+        }
 
         return response.created(res, 'user', savedUser);
     });
@@ -61,7 +73,7 @@ app.put('/:id', jwtVerify, (req, res) => {
             return response.error500(res, 'Error al actualizar el usuario', err);
 
         if (!user) {
-            return response.error400(
+            return response.error404(
                 res,
                 'Error al actualizar el usuario', { message: 'No existe ningún usuario con id ' + id }
             );
@@ -94,7 +106,7 @@ app.delete('/:id', jwtVerify, (req, res) => {
             return response.error500(res, 'Error al eliminar el usuario', err);
 
         if (!deletedUser) {
-            return response.error400(
+            return response.error404(
                 res,
                 'Error al eliminar el usuario', { message: 'No existe ningun usuario con id ' + id }
             );

@@ -1,3 +1,5 @@
+var util = require('util');
+
 function error(res, status, message, err) {
     return res.status(status).json({
         ok: false,
@@ -7,7 +9,20 @@ function error(res, status, message, err) {
 }
 
 function responseWithObject(res, status, key, object) {
-    var stringJson = `{ "ok": "true", "${key}": ${JSON.stringify(object)}}`;
+    var stringJson = '';
+
+    if (util.isArray(key)) {
+        stringJson = '{ "ok": "true", ';
+
+        for (var i = 0; i < key.length; i++) {
+            stringJson += `"${key[i]}": ${JSON.stringify(object[i] || '')},`;
+        }
+
+        stringJson = stringJson.substring(0, stringJson.length - 1) + '}';
+    } else {
+        stringJson = `{ "ok": "true", "${key}": ${JSON.stringify(object)}}`;
+    }
+
     return res.status(status).json(JSON.parse(stringJson));
 }
 

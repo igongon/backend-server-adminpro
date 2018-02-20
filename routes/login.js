@@ -30,7 +30,7 @@ app.post('/', (req, res) => {
             user.password = '';
 
             // JWT
-            var token = jwt.sign({ user }, SECRET, { expiresIn: 1440 }); // 4 horas
+            var token = jwt.sign({ user }, SECRET, { expiresIn: 14400 }); // 4 horas
 
             return res.status(200).json({
                 ok: true,

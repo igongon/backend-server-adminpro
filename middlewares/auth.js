@@ -43,7 +43,6 @@ exports.jwtVerify = function(req, res, next) {
         if (err) {
             return response.error401(res, 'Invalid token', err);
         }
-
         req.user = decoded.user;
 
         next();
